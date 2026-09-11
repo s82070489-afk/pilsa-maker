@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>필사메이커 (프로토타입)</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<main class="container">
+  <h1>필사메이커</h1>
+  <p class="subtitle">텍스트를 입력하고 버튼을 누르면 한글 PDF로 저장됩니다.</p>
+
+  <textarea id="text-input" rows="12" placeholder="여기에 필사할 문장을 입력하세요..."></textarea>
+
+  <button id="make-pdf-btn" type="button">PDF로 만들기</button>
+
+  <p id="status-message" class="status" role="status" aria-live="polite"></p>
+</main>
+
+<script src="lib/jspdf.umd.min.js"></script>
+<script src="assets/fonts/korean-font.js"></script>
+<script src="script.js"></script>
+</body>
+</html>
