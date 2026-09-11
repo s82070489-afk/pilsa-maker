@@ -9,10 +9,41 @@
 <body>
 <main class="container">
   <h1>필사메이커</h1>
-  <p class="subtitle">텍스트를 입력하고 버튼을 누르면 한글 PDF로 저장됩니다.</p>
+  <p class="subtitle">마음에 드는 문장을 옮겨 적고, 나만의 필사책으로 만들어보세요.</p>
 
   <section class="settings" aria-label="템플릿 설정">
     <h2 class="settings-title">템플릿 설정</h2>
+
+    <div class="settings-row">
+      <span class="settings-label">표지 제목</span>
+      <input type="text" id="cover-title-input" class="title-input" value="나의 문장들" maxlength="40">
+    </div>
+
+    <div class="settings-row">
+      <span class="settings-label">색상 팔레트</span>
+      <div class="palette-options">
+        <label class="palette-option">
+          <input type="radio" name="palette" value="sage" checked>
+          <span class="swatch swatch-sage" aria-hidden="true"></span>
+          <span class="palette-name">세이지그린</span>
+        </label>
+        <label class="palette-option">
+          <input type="radio" name="palette" value="beige">
+          <span class="swatch swatch-beige" aria-hidden="true"></span>
+          <span class="palette-name">웜베이지</span>
+        </label>
+        <label class="palette-option">
+          <input type="radio" name="palette" value="rose">
+          <span class="swatch swatch-rose" aria-hidden="true"></span>
+          <span class="palette-name">더스티로즈</span>
+        </label>
+        <label class="palette-option">
+          <input type="radio" name="palette" value="charcoal">
+          <span class="swatch swatch-charcoal" aria-hidden="true"></span>
+          <span class="palette-name">차콜</span>
+        </label>
+      </div>
+    </div>
 
     <div class="settings-row">
       <span class="settings-label">페이지 크기</span>
