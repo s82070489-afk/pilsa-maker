@@ -11,6 +11,22 @@
   <h1>필사메이커</h1>
   <p class="subtitle">텍스트를 입력하고 버튼을 누르면 한글 PDF로 저장됩니다.</p>
 
+  <section class="settings" aria-label="템플릿 설정">
+    <h2 class="settings-title">템플릿 설정</h2>
+
+    <div class="settings-row">
+      <span class="settings-label">페이지 크기</span>
+      <label><input type="radio" name="page-size" value="a4" checked> A4</label>
+      <label><input type="radio" name="page-size" value="a5"> A5</label>
+    </div>
+
+    <div class="settings-row">
+      <span class="settings-label">줄 스타일</span>
+      <label><input type="radio" name="line-style" value="ruled" checked> 가로줄 (필사 가이드라인)</label>
+      <label><input type="radio" name="line-style" value="plain"> 무지 (줄 없음)</label>
+    </div>
+  </section>
+
   <textarea id="text-input" rows="12" placeholder="여기에 필사할 문장을 입력하세요..."></textarea>
 
   <button id="make-pdf-btn" type="button">PDF로 만들기</button>
