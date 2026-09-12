@@ -12,8 +12,11 @@
   <aside class="sidebar">
     <div class="sidebar-scroll">
       <div class="brand">
-        <h1>필사메이커</h1>
-        <p class="subtitle">마음에 드는 문장을 옮겨 적고, 나만의 필사책으로 만들어보세요.</p>
+        <div class="brand-badge" aria-hidden="true">🖋️</div>
+        <div class="brand-text">
+          <h1>필사메이커</h1>
+          <p class="subtitle">마음에 드는 문장을 옮겨 적고, 나만의 필사책으로 만들어보세요.</p>
+        </div>
       </div>
 
       <button type="button" class="sidebar-toggle" id="sidebar-toggle" aria-expanded="false" aria-controls="sidebar-settings">
@@ -22,58 +25,79 @@
       </button>
 
       <div class="sidebar-settings" id="sidebar-settings">
-        <section class="settings" aria-label="템플릿 설정">
-          <div class="settings-row">
-            <span class="settings-label">표지 제목</span>
-            <input type="text" id="cover-title-input" class="title-input" value="나의 문장들" maxlength="40">
-          </div>
 
-          <div class="settings-row">
-            <span class="settings-label">색상 팔레트</span>
-            <div class="palette-options">
-              <label class="palette-option">
-                <input type="radio" name="palette" value="sage" checked>
-                <span class="swatch swatch-sage" aria-hidden="true"></span>
-                <span class="palette-name">세이지그린</span>
-              </label>
-              <label class="palette-option">
-                <input type="radio" name="palette" value="beige">
-                <span class="swatch swatch-beige" aria-hidden="true"></span>
-                <span class="palette-name">웜베이지</span>
-              </label>
-              <label class="palette-option">
-                <input type="radio" name="palette" value="rose">
-                <span class="swatch swatch-rose" aria-hidden="true"></span>
-                <span class="palette-name">더스티로즈</span>
-              </label>
-              <label class="palette-option">
-                <input type="radio" name="palette" value="charcoal">
-                <span class="swatch swatch-charcoal" aria-hidden="true"></span>
-                <span class="palette-name">차콜</span>
-              </label>
-            </div>
-          </div>
+        <div class="settings-group">
+          <label class="group-label" for="cover-title-input">표지 제목</label>
+          <input type="text" id="cover-title-input" class="title-input" value="나의 문장들" maxlength="40">
+        </div>
 
-          <div class="settings-row">
-            <span class="settings-label">페이지 크기</span>
-            <label><input type="radio" name="page-size" value="a4" checked> A4</label>
-            <label><input type="radio" name="page-size" value="a5"> A5</label>
+        <div class="settings-group">
+          <span class="group-label">색상 팔레트</span>
+          <div class="palette-options">
+            <label class="palette-option">
+              <span class="swatch swatch-sage" aria-hidden="true"></span>
+              <span class="palette-name">세이지그린</span>
+              <input type="radio" name="palette" value="sage" checked>
+            </label>
+            <label class="palette-option">
+              <span class="swatch swatch-beige" aria-hidden="true"></span>
+              <span class="palette-name">웜베이지</span>
+              <input type="radio" name="palette" value="beige">
+            </label>
+            <label class="palette-option">
+              <span class="swatch swatch-rose" aria-hidden="true"></span>
+              <span class="palette-name">더스티로즈</span>
+              <input type="radio" name="palette" value="rose">
+            </label>
+            <label class="palette-option">
+              <span class="swatch swatch-charcoal" aria-hidden="true"></span>
+              <span class="palette-name">차콜</span>
+              <input type="radio" name="palette" value="charcoal">
+            </label>
           </div>
+        </div>
 
-          <div class="settings-row">
-            <span class="settings-label">줄 스타일</span>
-            <label><input type="radio" name="line-style" value="ruled" checked> 가로줄 (필사 가이드라인)</label>
-            <label><input type="radio" name="line-style" value="plain"> 무지 (줄 없음)</label>
+        <div class="settings-group">
+          <span class="group-label">페이지 크기</span>
+          <div class="toggle-group">
+            <label class="toggle-pill">
+              <span>A4</span>
+              <input type="radio" name="page-size" value="a4" checked>
+            </label>
+            <label class="toggle-pill">
+              <span>A5</span>
+              <input type="radio" name="page-size" value="a5">
+            </label>
           </div>
-        </section>
+        </div>
 
-        <label class="text-input-label" for="text-input">필사할 문장</label>
-        <textarea id="text-input" rows="10" placeholder="여기에 필사할 문장을 입력하세요..."></textarea>
+        <div class="settings-group">
+          <span class="group-label">줄 스타일</span>
+          <div class="toggle-group toggle-group-wide">
+            <label class="toggle-pill">
+              <span>가로줄 (필사 가이드라인)</span>
+              <input type="radio" name="line-style" value="ruled" checked>
+            </label>
+            <label class="toggle-pill">
+              <span>무지 (줄 없음)</span>
+              <input type="radio" name="line-style" value="plain">
+            </label>
+          </div>
+        </div>
+
+        <div class="settings-group">
+          <label class="group-label" for="text-input">필사할 문장</label>
+          <textarea id="text-input" rows="10" placeholder="여기에 필사할 문장을 입력하세요..."></textarea>
+        </div>
+
       </div>
     </div>
 
     <div class="sidebar-footer">
-      <button id="make-pdf-btn" type="button">PDF로 만들기</button>
+      <button id="make-pdf-btn" type="button">
+        <span class="btn-icon" aria-hidden="true">⬇</span>
+        <span>PDF로 만들기</span>
+      </button>
       <p id="status-message" class="status" role="status" aria-live="polite"></p>
     </div>
   </aside>
@@ -98,7 +122,7 @@
             <div class="body-content" id="body-content"></div>
             <div class="body-footer" id="body-footer-preview"></div>
           </div>
-          <figcaption>본문 (1페이지 미리보기)</figcaption>
+          <figcaption>본문 <span class="figcaption-muted">(1페이지 미리보기)</span></figcaption>
         </figure>
       </div>
     </div>
