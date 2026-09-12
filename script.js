@@ -7,10 +7,13 @@
   var statusEl = document.getElementById("status-message");
 
   var FONT_NAME = "Pretendard";
-  var FONT_SIZE = 14; // pt, body text
+  var FONT_SIZE = 14; // pt, reference size used to size the handwriting row
+  var ORIGINAL_FONT_SIZE = 10; // pt, the printed original-text line above each blank row
   var FOOTER_FONT_SIZE = 9; // pt, page number
-  var LINE_HEIGHT_MULTIPLIER = 1.8; // spacing between guide-line slots, relative to font size
-  var GUIDE_LINE_GAP_MM = 1; // gap below the text baseline where the rule is drawn
+  var LINE_HEIGHT_MULTIPLIER = 1.8; // handwriting-row height, relative to FONT_SIZE
+  var GAP_TEXT_TO_RULE_MM = 4; // gap from the original text's baseline down to the blank rule
+  var PAIR_GAP_MM = 4; // gap after the blank rule before the next pair's original text
+  var PAIR_TOP_OFFSET_MM = 5; // breathing room between the top margin and the first pair
   var GUIDE_LINE_WIDTH_MM = 0.2;
 
   var COVER_TITLE_FONT_SIZE = 26; // pt
@@ -22,13 +25,14 @@
   var DEFAULT_COVER_TITLE = "나의 문장들";
 
   // Each palette gives a strong "accent" color for the cover frame/title/page
-  // numbers, and a light "guideline" tint so the ruled lines read as part of
-  // the same color story instead of plain gray.
+  // numbers, a mid-tone "original" color for the printed reference line the
+  // user copies from, and a light "guideline" tint for the blank rule below
+  // it -- so the whole page reads as one color story instead of plain gray.
   var PALETTES = {
-    sage: { label: "세이지그린", accent: [106, 138, 101], guideline: [211, 224, 206] },
-    beige: { label: "웜베이지", accent: [168, 124, 79], guideline: [237, 221, 199] },
-    rose: { label: "더스티로즈", accent: [176, 115, 118], guideline: [240, 217, 218] },
-    charcoal: { label: "차콜", accent: [74, 74, 74], guideline: [214, 214, 214] },
+    sage: { label: "세이지그린", accent: [106, 138, 101], original: [159, 181, 154], guideline: [211, 224, 206] },
+    beige: { label: "웜베이지", accent: [168, 124, 79], original: [203, 173, 139], guideline: [237, 221, 199] },
+    rose: { label: "더스티로즈", accent: [176, 115, 118], original: [208, 166, 168], guideline: [240, 217, 218] },
+    charcoal: { label: "차콜", accent: [74, 74, 74], original: [144, 144, 144], guideline: [214, 214, 214] },
   };
 
   // Page-size-dependent defaults. Margins are chosen automatically so the
@@ -74,15 +78,28 @@
     root.setProperty("--accent-soft", rgbToHex(palette.guideline));
   }
 
-  function wrapTextLines(doc, text, maxWidth) {
-    var rawLines = text.split(/\r\n|\r|\n/);
+  function splitIntoSentences(text) {
+    var paragraphs = text.split(/\r\n|\r|\n/);
+    var sentences = [];
+    paragraphs.forEach(function (paragraph) {
+      // Break after each '.', '!' or '?' so every sentence becomes its own
+      // transcription line, on top of the line breaks already in the input.
+      var parts = paragraph.split(/(?<=[.!?])\s*/);
+      parts.forEach(function (part) {
+        var trimmed = part.trim();
+        if (trimmed.length > 0) {
+          sentences.push(trimmed);
+        }
+      });
+    });
+    return sentences;
+  }
+
+  function buildOriginalLines(doc, text, maxWidth) {
+    var sentences = splitIntoSentences(text);
     var lines = [];
-    rawLines.forEach(function (rawLine) {
-      if (rawLine.length === 0) {
-        lines.push("");
-        return;
-      }
-      var wrapped = doc.splitTextToSize(rawLine, maxWidth);
+    sentences.forEach(function (sentence) {
+      var wrapped = doc.splitTextToSize(sentence, maxWidth);
       wrapped.forEach(function (w) {
         lines.push(w);
       });
@@ -133,43 +150,48 @@
     drawCoverPage(doc, pageWidth, pageHeight, margin, palette, coverTitle);
 
     doc.setFont(FONT_NAME, "normal");
-    doc.setFontSize(FONT_SIZE);
-    var lineHeightMm = mmFromPt(FONT_SIZE) * LINE_HEIGHT_MULTIPLIER;
+    doc.setFontSize(ORIGINAL_FONT_SIZE);
 
-    // Fixed grid of baseline Y positions, reused identically on every page
-    // regardless of line style, so pagination doesn't shift between the
-    // two line-style options.
-    var slots = [];
-    var y = margin + lineHeightMm;
-    while (y <= contentBottom) {
-      slots.push(y);
-      y += lineHeightMm;
+    var handwritingRowMm = mmFromPt(FONT_SIZE) * LINE_HEIGHT_MULTIPLIER;
+    var pairPitchMm = GAP_TEXT_TO_RULE_MM + handwritingRowMm + PAIR_GAP_MM;
+
+    // Fixed grid of [original-text baseline, blank-rule Y] pairs, reused
+    // identically on every page regardless of line style, so pagination
+    // doesn't shift between the two line-style options.
+    var pairSlots = [];
+    var pairIndex = 0;
+    while (true) {
+      var textY = margin + PAIR_TOP_OFFSET_MM + pairIndex * pairPitchMm;
+      var ruleY = textY + GAP_TEXT_TO_RULE_MM;
+      if (ruleY > contentBottom) {
+        break;
+      }
+      pairSlots.push({ textY: textY, ruleY: ruleY });
+      pairIndex++;
     }
 
-    var wrappedLines = wrapTextLines(doc, text, maxWidth);
-    var totalPages = Math.max(1, Math.ceil(wrappedLines.length / slots.length));
+    var originalLines = buildOriginalLines(doc, text, maxWidth);
+    var totalPages = Math.max(1, Math.ceil(originalLines.length / pairSlots.length));
 
     for (var pageIndex = 0; pageIndex < totalPages; pageIndex++) {
       doc.addPage();
 
+      var chunk = originalLines.slice(pageIndex * pairSlots.length, (pageIndex + 1) * pairSlots.length);
+
+      doc.setFont(FONT_NAME, "normal");
+      doc.setFontSize(ORIGINAL_FONT_SIZE);
+      doc.setTextColor(palette.original[0], palette.original[1], palette.original[2]);
+      chunk.forEach(function (line, idx) {
+        doc.text(line, margin, pairSlots[idx].textY);
+      });
+
       if (lineStyle === "ruled") {
         doc.setDrawColor(palette.guideline[0], palette.guideline[1], palette.guideline[2]);
         doc.setLineWidth(GUIDE_LINE_WIDTH_MM);
-        slots.forEach(function (slotY) {
-          doc.line(margin, slotY + GUIDE_LINE_GAP_MM, pageWidth - margin, slotY + GUIDE_LINE_GAP_MM);
+        pairSlots.forEach(function (slot) {
+          doc.line(margin, slot.ruleY, pageWidth - margin, slot.ruleY);
         });
       }
-
-      doc.setFont(FONT_NAME, "normal");
-      doc.setFontSize(FONT_SIZE);
-      doc.setTextColor(0, 0, 0);
-
-      var chunk = wrappedLines.slice(pageIndex * slots.length, (pageIndex + 1) * slots.length);
-      chunk.forEach(function (line, idx) {
-        if (line.length > 0) {
-          doc.text(line, margin, slots[idx]);
-        }
-      });
 
       doc.setFont(FONT_NAME, "normal");
       doc.setFontSize(FOOTER_FONT_SIZE);
