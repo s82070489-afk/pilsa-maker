@@ -52,11 +52,17 @@ body {
   height: 100vh;
 }
 
+/* Sidebar : main ratio measured from reference at 190px : 894px (~1:4.7,
+   sidebar ~17.5% of the app width). Applied at a fixed px rather than a
+   fluid % -- our sidebar carries a palette swatch grid and form controls
+   the reference's plain nav list didn't have, so the literal 190px would
+   be too narrow; 264px keeps the same rough proportion at our common
+   desktop widths without breaking the swatch grid. */
 .sidebar {
   display: flex;
   flex-direction: column;
-  flex: 0 0 340px;
-  width: 340px;
+  flex: 0 0 264px;
+  width: 264px;
   background: var(--bg-sidebar);
   border-right: 1px solid var(--hairline-dark);
 }
@@ -64,12 +70,12 @@ body {
 .sidebar-scroll {
   flex: 1 1 auto;
   overflow-y: auto;
-  padding: 28px 24px 8px;
+  padding: 24px 20px 8px;
 }
 
 .sidebar-footer {
   flex: 0 0 auto;
-  padding: 16px 24px 24px;
+  padding: 16px 20px 24px;
   border-top: 1px solid var(--hairline-dark);
   box-shadow: inset 0 1px 0 var(--hairline-light);
   background: var(--bg-sidebar);
@@ -77,13 +83,51 @@ body {
 
 .canvas-area {
   flex: 1 1 auto;
-  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
   background: var(--bg-canvas);
 }
 
+/* Thin header bar, mirroring the reference's top welcome/status row. */
+.canvas-header {
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 24px;
+  background: var(--bg-canvas);
+  border-bottom: 1px solid rgba(58, 51, 44, 0.14);
+}
+
+.canvas-header h2 {
+  margin: 0;
+  font-family: var(--font-serif);
+  font-size: 17px;
+  font-weight: 700;
+  color: var(--ink);
+}
+
+.canvas-status {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  color: var(--ink-label);
+}
+
+.status-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--accent-fixed);
+}
+
 .canvas-scroll {
+  flex: 1 1 auto;
+  overflow-y: auto;
   min-height: 100%;
-  padding: 48px 32px;
+  padding: 24px;
   display: flex;
   justify-content: center;
 }
@@ -94,7 +138,7 @@ body {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 56px;
+  gap: 32px;
 }
 
 /* ---------- sidebar header ---------- */
@@ -452,24 +496,27 @@ button#make-pdf-btn:disabled {
   max-width: 480px;
 }
 
+/* Card radius/shadow measured from the reference's stat/panel cards: ~14px
+   radius, and a soft two-layer shadow (tight low-opacity contact shadow +
+   a much larger, faint ambient one) rather than one heavy shadow. */
 .page-stack::before,
 .page-stack::after {
   content: "";
   position: absolute;
   inset: 0;
-  border-radius: 4px;
+  border-radius: 14px;
   z-index: 0;
 }
 
 .page-stack::before {
   background: #f1ead9;
-  box-shadow: 0 10px 18px rgba(43, 38, 30, 0.16);
+  box-shadow: 0 10px 18px rgba(43, 38, 30, 0.1);
   transform: rotate(-1.1deg) translate(4px, 5px);
 }
 
 .page-stack::after {
   background: #e8dfc9;
-  box-shadow: 0 6px 12px rgba(43, 38, 30, 0.14);
+  box-shadow: 0 6px 12px rgba(43, 38, 30, 0.08);
   transform: rotate(0.8deg) translate(-4px, 7px);
   z-index: -1;
 }
@@ -479,8 +526,8 @@ button#make-pdf-btn:disabled {
   z-index: 2;
   width: 100%;
   background: var(--card-bg);
-  border-radius: 4px;
-  box-shadow: 0 16px 30px rgba(43, 38, 30, 0.26), 0 2px 6px rgba(43, 38, 30, 0.14);
+  border-radius: 14px;
+  box-shadow: 0 1px 2px rgba(43, 38, 30, 0.06), 0 20px 40px rgba(43, 38, 30, 0.14);
   overflow: hidden;
 }
 
@@ -579,15 +626,20 @@ button#make-pdf-btn:disabled {
 
   .canvas-area {
     flex: 1 1 auto;
-    overflow-y: visible;
+    overflow: visible;
     min-height: 70vh;
   }
 
+  .canvas-header {
+    padding: 14px 20px;
+  }
+
   .canvas-scroll {
-    padding: 32px 20px;
+    overflow-y: visible;
+    padding: 20px;
   }
 
   .canvas-pages {
-    gap: 48px;
+    gap: 28px;
   }
 }
