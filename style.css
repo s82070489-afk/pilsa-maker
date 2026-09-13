@@ -1,19 +1,20 @@
 :root {
-  /* Design tokens for this round. --accent-fixed is a deliberate, fixed ink
-     accent for the UI chrome (button/focus/selection), independent of
-     whichever book palette (sage/beige/rose/charcoal) the user picks for
-     the actual PDF -- that palette only ever touches the canvas preview,
-     via inline styles set from script.js, never these variables. */
-  --bg-app: #ede7db;
-  --bg-sidebar: #f7f3ea;
-  --bg-canvas: #ddd3be;
-  --card-bg: #fffefb;
-  --accent-fixed: #3b4a3a;
-  --accent-fixed-soft: rgba(59, 74, 58, 0.14);
-  --ink: #3a3630;
-  --ink-label: #7a7266;
-  --hairline-dark: rgba(58, 51, 44, 0.12);
-  --hairline-light: rgba(255, 255, 255, 0.6);
+  /* Design tokens for this round: a cool blue/gray "app" identity for the
+     UI chrome only. This is completely separate from the book palette
+     (sage/beige/rose/charcoal swatches), which keeps its own hex values
+     untouched and only ever reaches the canvas preview via inline styles
+     set from script.js -- never through these variables. */
+  --bg-app: #f5f6f8;
+  --bg-sidebar: #ffffff;
+  --bg-canvas: #eef1f5;
+  --card-bg: #ffffff;
+  --accent-fixed: #185fa5;
+  --accent-fixed-soft-bg: #e6f1fb;
+  --accent-fixed-soft: rgba(24, 95, 165, 0.16);
+  --accent-secondary: #0c447c;
+  --ink: #24292e;
+  --ink-label: #6b7280;
+  --hairline: #e2e5ea;
   --radius-sm: 8px;
   --radius-md: 12px;
   --font-serif: "Noto Serif KR", "Nanum Myeongjo", "AppleMyungjo", Batang, serif;
@@ -52,19 +53,13 @@ body {
   height: 100vh;
 }
 
-/* Sidebar : main ratio measured from reference at 190px : 894px (~1:4.7,
-   sidebar ~17.5% of the app width). Applied at a fixed px rather than a
-   fluid % -- our sidebar carries a palette swatch grid and form controls
-   the reference's plain nav list didn't have, so the literal 190px would
-   be too narrow; 264px keeps the same rough proportion at our common
-   desktop widths without breaking the swatch grid. */
 .sidebar {
   display: flex;
   flex-direction: column;
   flex: 0 0 264px;
   width: 264px;
   background: var(--bg-sidebar);
-  border-right: 1px solid var(--hairline-dark);
+  border-right: 1px solid var(--hairline);
 }
 
 .sidebar-scroll {
@@ -76,8 +71,7 @@ body {
 .sidebar-footer {
   flex: 0 0 auto;
   padding: 16px 20px 24px;
-  border-top: 1px solid var(--hairline-dark);
-  box-shadow: inset 0 1px 0 var(--hairline-light);
+  border-top: 1px solid var(--hairline);
   background: var(--bg-sidebar);
 }
 
@@ -89,21 +83,47 @@ body {
   background: var(--bg-canvas);
 }
 
-/* Thin header bar, mirroring the reference's top welcome/status row. */
+/* Thin header bar: icon badge + app title on the left, live-update status
+   on the right. */
 .canvas-header {
   flex: 0 0 auto;
   display: flex;
   align-items: center;
   justify-content: space-between;
   padding: 16px 24px;
-  background: var(--bg-canvas);
-  border-bottom: 1px solid rgba(58, 51, 44, 0.14);
+  background: var(--card-bg);
+  border-bottom: 1px solid var(--hairline);
+}
+
+.canvas-header-brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.canvas-badge,
+.brand-badge {
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  color: var(--accent-fixed);
+  background: var(--accent-fixed-soft-bg);
+  border-radius: var(--radius-md);
+}
+
+.canvas-badge svg,
+.brand-badge svg {
+  width: 18px;
+  height: 18px;
 }
 
 .canvas-header h2 {
   margin: 0;
-  font-family: var(--font-serif);
-  font-size: 17px;
+  font-family: var(--font-sans);
+  font-size: 16px;
   font-weight: 700;
   color: var(--ink);
 }
@@ -116,11 +136,44 @@ body {
   color: var(--ink-label);
 }
 
-.status-dot {
-  width: 6px;
-  height: 6px;
-  border-radius: 50%;
-  background: var(--accent-fixed);
+.status-check {
+  display: inline-flex;
+  color: var(--accent-secondary);
+  font-weight: 700;
+  font-size: 12px;
+}
+
+/* ---------- canvas stat cards ---------- */
+
+.canvas-stats {
+  flex: 0 0 auto;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12px;
+  padding: 20px 24px 0;
+}
+
+.stat-card {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 14px 16px;
+  background: var(--card-bg);
+  border: 1px solid var(--hairline);
+  border-radius: var(--radius-md);
+  box-shadow: 0 1px 2px rgba(16, 24, 40, 0.04);
+}
+
+.stat-label {
+  font-size: 11.5px;
+  font-weight: 400;
+  color: var(--ink-label);
+}
+
+.stat-value {
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--ink);
 }
 
 .canvas-scroll {
@@ -150,22 +203,9 @@ body {
   margin-bottom: 24px;
 }
 
-.brand-badge {
-  flex: 0 0 auto;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 40px;
-  height: 40px;
-  font-size: 19px;
-  background: var(--accent-fixed-soft);
-  border: 1px solid rgba(59, 74, 58, 0.22);
-  border-radius: var(--radius-md);
-}
-
 .brand-text h1 {
-  font-family: var(--font-serif);
-  font-size: 24px;
+  font-family: var(--font-sans);
+  font-size: 22px;
   font-weight: 700;
   letter-spacing: 0;
   margin: 2px 0 6px;
@@ -193,7 +233,7 @@ body {
   font-family: inherit;
   color: var(--ink);
   background: var(--card-bg);
-  border: 1px solid var(--hairline-dark);
+  border: 1px solid var(--hairline);
   border-radius: var(--radius-md);
   cursor: pointer;
 }
@@ -211,7 +251,7 @@ body {
   transform: rotate(-135deg);
 }
 
-/* ---------- settings: one continuous panel, grooved dividers ---------- */
+/* ---------- settings: one continuous panel, plain dividers ---------- */
 
 .settings-group {
   padding: 18px 0;
@@ -222,8 +262,7 @@ body {
 }
 
 .settings-group + .settings-group {
-  border-top: 1px solid var(--hairline-dark);
-  box-shadow: inset 0 1px 0 var(--hairline-light);
+  border-top: 1px solid var(--hairline);
 }
 
 .group-label {
@@ -239,6 +278,7 @@ body {
   margin: 8px 2px 0;
   font-size: 11.5px;
   line-height: 1.5;
+  font-weight: 400;
   color: var(--ink-label);
 }
 
@@ -247,8 +287,9 @@ body {
   padding: 10px 12px;
   font-family: var(--font-serif);
   font-size: 15px;
+  font-weight: 400;
   color: var(--ink);
-  border: 1px solid rgba(58, 51, 44, 0.2);
+  border: 1px solid var(--hairline);
   border-radius: var(--radius-sm);
   background: var(--card-bg);
   transition: border-color 0.15s ease, box-shadow 0.15s ease;
@@ -260,7 +301,8 @@ body {
   box-shadow: 0 0 0 3px var(--accent-fixed-soft);
 }
 
-/* palette swatches -- larger circles, ink-bleed selection ring */
+/* palette swatches -- book palette colors are untouched; only the
+   selection ring uses the fixed UI accent. */
 
 .palette-options {
   display: flex;
@@ -302,8 +344,8 @@ body {
 }
 
 .palette-option:has(input:checked) .swatch {
-  box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.1), 0 0 0 3px var(--bg-sidebar), 0 0 0 5px rgba(59, 74, 58, 0.45),
-    0 0 12px 4px rgba(59, 74, 58, 0.22);
+  box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.1), 0 0 0 3px var(--bg-sidebar), 0 0 0 5px rgba(24, 95, 165, 0.5),
+    0 0 12px 4px rgba(24, 95, 165, 0.25);
 }
 
 .palette-option:has(input:focus-visible) {
@@ -314,6 +356,7 @@ body {
 
 .palette-name {
   font-size: 11.5px;
+  font-weight: 400;
   color: var(--ink-label);
   line-height: 1.3;
 }
@@ -345,8 +388,8 @@ body {
   display: flex;
   gap: 4px;
   padding: 4px;
-  background: rgba(58, 51, 44, 0.06);
-  border: 1px solid var(--hairline-dark);
+  background: var(--bg-canvas);
+  border: 1px solid var(--hairline);
   border-radius: 9999px;
 }
 
@@ -359,6 +402,7 @@ body {
   padding: 8px 14px;
   border-radius: 9999px;
   font-size: 13px;
+  font-weight: 400;
   line-height: 1.3;
   color: var(--ink-label);
   text-align: center;
@@ -379,7 +423,7 @@ body {
   background: var(--accent-fixed);
   color: var(--card-bg);
   font-weight: 700;
-  box-shadow: 0 2px 6px rgba(43, 38, 30, 0.25);
+  box-shadow: 0 2px 6px rgba(24, 95, 165, 0.3);
 }
 
 .toggle-pill:has(input:focus-visible) {
@@ -391,11 +435,12 @@ textarea {
   width: 100%;
   padding: 12px 14px;
   font-size: 14px;
+  font-weight: 400;
   line-height: 1.7;
   font-family: var(--font-sans);
   color: var(--ink);
   background: var(--card-bg);
-  border: 1px solid rgba(58, 51, 44, 0.2);
+  border: 1px solid var(--hairline);
   border-radius: var(--radius-sm);
   resize: vertical;
   transition: border-color 0.15s ease, box-shadow 0.15s ease;
@@ -419,12 +464,12 @@ button#make-pdf-btn {
   font-size: 15px;
   font-weight: 700;
   font-family: var(--font-sans);
-  color: var(--card-bg);
+  color: #ffffff;
   background: var(--accent-fixed);
   border: none;
   border-radius: var(--radius-md);
   cursor: pointer;
-  box-shadow: 0 2px 6px rgba(43, 38, 30, 0.28);
+  box-shadow: 0 2px 6px rgba(24, 95, 165, 0.35);
   transition: filter 0.15s ease, transform 0.15s ease, box-shadow 0.15s ease;
 }
 
@@ -434,19 +479,19 @@ button#make-pdf-btn .btn-icon {
 }
 
 button#make-pdf-btn:hover {
-  filter: brightness(1.15);
+  filter: brightness(1.1);
   transform: translateY(-1px);
-  box-shadow: 0 6px 14px rgba(43, 38, 30, 0.32);
+  box-shadow: 0 6px 14px rgba(24, 95, 165, 0.4);
 }
 
 button#make-pdf-btn:active {
   transform: translateY(0);
   filter: brightness(0.95);
-  box-shadow: 0 1px 3px rgba(43, 38, 30, 0.28);
+  box-shadow: 0 1px 3px rgba(24, 95, 165, 0.3);
 }
 
 button#make-pdf-btn:disabled {
-  background: #a79c86;
+  background: #9ca3af;
   cursor: not-allowed;
   filter: none;
   transform: none;
@@ -457,6 +502,7 @@ button#make-pdf-btn:disabled {
   min-height: 20px;
   margin: 10px 0 0;
   font-size: 13px;
+  font-weight: 400;
   color: var(--ink-label);
   text-align: center;
 }
@@ -480,13 +526,13 @@ button#make-pdf-btn:disabled {
   font-size: 12.5px;
   font-weight: 700;
   letter-spacing: 0.03em;
-  color: #5c5346;
+  color: var(--ink-label);
 }
 
 .figcaption-muted {
   font-weight: 400;
   letter-spacing: 0;
-  color: #8d8474;
+  color: #9aa2af;
   margin-left: 2px;
 }
 
@@ -498,7 +544,9 @@ button#make-pdf-btn:disabled {
 
 /* Card radius/shadow measured from the reference's stat/panel cards: ~14px
    radius, and a soft two-layer shadow (tight low-opacity contact shadow +
-   a much larger, faint ambient one) rather than one heavy shadow. */
+   a much larger, faint ambient one) rather than one heavy shadow. Stack
+   layer colors are neutral grays (not the old warm paper cream) to match
+   this round's cool token set -- color values only, same structure. */
 .page-stack::before,
 .page-stack::after {
   content: "";
@@ -509,14 +557,14 @@ button#make-pdf-btn:disabled {
 }
 
 .page-stack::before {
-  background: #f1ead9;
-  box-shadow: 0 10px 18px rgba(43, 38, 30, 0.1);
+  background: #e9ebef;
+  box-shadow: 0 10px 18px rgba(16, 24, 40, 0.08);
   transform: rotate(-1.1deg) translate(4px, 5px);
 }
 
 .page-stack::after {
-  background: #e8dfc9;
-  box-shadow: 0 6px 12px rgba(43, 38, 30, 0.08);
+  background: #dde1e7;
+  box-shadow: 0 6px 12px rgba(16, 24, 40, 0.06);
   transform: rotate(0.8deg) translate(-4px, 7px);
   z-index: -1;
 }
@@ -527,7 +575,7 @@ button#make-pdf-btn:disabled {
   width: 100%;
   background: var(--card-bg);
   border-radius: 14px;
-  box-shadow: 0 1px 2px rgba(43, 38, 30, 0.06), 0 20px 40px rgba(43, 38, 30, 0.14);
+  box-shadow: 0 1px 2px rgba(16, 24, 40, 0.06), 0 20px 40px rgba(16, 24, 40, 0.12);
   overflow: hidden;
 }
 
@@ -600,7 +648,7 @@ button#make-pdf-btn:disabled {
     flex: 0 0 auto;
     width: 100%;
     border-right: none;
-    border-bottom: 1px solid var(--hairline-dark);
+    border-bottom: 1px solid var(--hairline);
   }
 
   .sidebar-scroll {
@@ -632,6 +680,11 @@ button#make-pdf-btn:disabled {
 
   .canvas-header {
     padding: 14px 20px;
+  }
+
+  .canvas-stats {
+    grid-template-columns: repeat(2, 1fr);
+    padding: 16px 20px 0;
   }
 
   .canvas-scroll {

@@ -19,6 +19,11 @@
   var bodyContentEl = document.getElementById("body-content");
   var bodyFooterEl = document.getElementById("body-footer-preview");
 
+  var statPageSizeEl = document.getElementById("stat-page-size");
+  var statLineStyleEl = document.getElementById("stat-line-style");
+  var statSentenceCountEl = document.getElementById("stat-sentence-count");
+  var statPageCountEl = document.getElementById("stat-page-count");
+
   var FONT_NAME = "Pretendard";
   var FONT_SIZE = 14; // pt, reference size used to size the handwriting row
   var ORIGINAL_FONT_SIZE = 10; // pt, the printed original-text line above each blank row
@@ -348,6 +353,16 @@
     bodyFooterEl.style.color = rgbToCss(palette.accent);
   }
 
+  // Reads the already-computed layout (and the same pure splitIntoSentences
+  // used by computeLayout) to fill the canvas header's stat cards -- purely
+  // additive, doesn't change how the layout or PDF is computed.
+  function updateStatCards(pageSize, lineStyle, text, layout) {
+    statPageSizeEl.textContent = pageSize.toUpperCase();
+    statLineStyleEl.textContent = lineStyle === "plain" ? "무지" : "가로줄";
+    statSentenceCountEl.textContent = String(splitIntoSentences(text).length);
+    statPageCountEl.textContent = String(layout.totalPages);
+  }
+
   function updatePreview() {
     var pageSize = getSelectedValue("page-size") || "a4";
     var lineStyle = getSelectedValue("line-style") || "ruled";
@@ -358,6 +373,7 @@
     var layout = computeLayout(text, { pageSize: pageSize });
     renderCoverPreview(layout, palette, coverTitle);
     renderBodyPreview(layout, palette, lineStyle);
+    updateStatCards(pageSize, lineStyle, text, layout);
   }
 
   var previewUpdateTimer = null;

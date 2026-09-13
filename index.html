@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>필사메이커 (프로토타입)</title>
+<link rel="stylesheet" href="assets/fonts/ui-fonts.css">
 <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -12,7 +13,7 @@
   <aside class="sidebar">
     <div class="sidebar-scroll">
       <div class="brand">
-        <div class="brand-badge" aria-hidden="true">🖋️</div>
+        <div class="brand-badge" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"></path><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4Z"></path></svg></div>
         <div class="brand-text">
           <h1>필사메이커</h1>
           <p class="subtitle">마음에 드는 문장을 옮겨 적고, 나만의 필사책으로 만들어보세요.</p>
@@ -105,8 +106,29 @@
 
   <main class="canvas-area">
     <div class="canvas-header">
-      <h2>미리보기</h2>
-      <span class="canvas-status"><span class="status-dot" aria-hidden="true"></span>실시간 반영 중</span>
+      <div class="canvas-header-brand">
+        <div class="canvas-badge" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"></path><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4Z"></path></svg></div>
+        <h2>필사메이커</h2>
+      </div>
+      <span class="canvas-status"><span class="status-check" aria-hidden="true">&#10003;</span>미리보기 자동 갱신됨</span>
+    </div>
+    <div class="canvas-stats">
+      <div class="stat-card">
+        <span class="stat-label">페이지 크기</span>
+        <span class="stat-value" id="stat-page-size">A4</span>
+      </div>
+      <div class="stat-card">
+        <span class="stat-label">줄 스타일</span>
+        <span class="stat-value" id="stat-line-style">가로줄</span>
+      </div>
+      <div class="stat-card">
+        <span class="stat-label">문장 수</span>
+        <span class="stat-value" id="stat-sentence-count">0</span>
+      </div>
+      <div class="stat-card">
+        <span class="stat-label">예상 페이지</span>
+        <span class="stat-value" id="stat-page-count">1</span>
+      </div>
     </div>
     <div class="canvas-scroll">
       <div class="canvas-pages">
