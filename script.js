@@ -24,6 +24,14 @@
   var statSentenceCountEl = document.getElementById("stat-sentence-count");
   var statPageCountEl = document.getElementById("stat-page-count");
 
+  var homeScreenEl = document.getElementById("home-screen");
+  var appShellEl = document.getElementById("app-shell");
+  var projectGridEl = document.getElementById("project-grid");
+  var emptyStateEl = document.getElementById("empty-state");
+  var newProjectBtn = document.getElementById("new-project-btn");
+  var emptyNewProjectBtn = document.getElementById("empty-new-project-btn");
+  var backToHomeBtn = document.getElementById("back-to-home");
+
   var FONT_NAME = "Pretendard";
   var FONT_SIZE = 14; // pt, reference size used to size the handwriting row
   var ORIGINAL_FONT_SIZE = 10; // pt, the printed original-text line above each blank row
@@ -363,6 +371,230 @@
     statPageCountEl.textContent = String(layout.totalPages);
   }
 
+  // ---------- project storage (home screen) ----------
+  // Purely additive: reads/writes localStorage and toggles which screen is
+  // visible. Never touches computeLayout/createPdf or the PDF font -- it
+  // only fills the same form fields the user would type into by hand,
+  // then relies on the existing updatePreview()/schedulePreviewUpdate().
+
+  var PROJECTS_STORAGE_KEY = "pilsa-projects";
+  var currentProjectId = null;
+  var autoSaveTimer = null;
+
+  function loadProjects() {
+    try {
+      var raw = localStorage.getItem(PROJECTS_STORAGE_KEY);
+      var list = raw ? JSON.parse(raw) : [];
+      return Array.isArray(list) ? list : [];
+    } catch (err) {
+      return [];
+    }
+  }
+
+  function saveProjects(list) {
+    try {
+      localStorage.setItem(PROJECTS_STORAGE_KEY, JSON.stringify(list));
+    } catch (err) {
+      console.error(err);
+    }
+  }
+
+  function generateProjectId() {
+    return "p" + Date.now().toString(36) + Math.random().toString(36).slice(2, 8);
+  }
+
+  function formatRelativeTime(timestamp) {
+    var diffMin = Math.floor((Date.now() - timestamp) / 60000);
+    if (diffMin < 1) return "방금 전";
+    if (diffMin < 60) return diffMin + "분 전";
+    var diffHour = Math.floor(diffMin / 60);
+    if (diffHour < 24) return diffHour + "시간 전";
+    var diffDay = Math.floor(diffHour / 24);
+    return diffDay + "일 전";
+  }
+
+  function applyProjectToEditor(project) {
+    coverTitleInput.value = project.title || DEFAULT_COVER_TITLE;
+    textInput.value = project.text || "";
+
+    var paletteInput = document.querySelector('input[name="palette"][value="' + project.palette + '"]');
+    if (paletteInput) paletteInput.checked = true;
+
+    var pageSizeInput = document.querySelector('input[name="page-size"][value="' + project.pageSize + '"]');
+    if (pageSizeInput) pageSizeInput.checked = true;
+
+    var lineStyleInput = document.querySelector('input[name="line-style"][value="' + project.lineStyle + '"]');
+    if (lineStyleInput) lineStyleInput.checked = true;
+  }
+
+  function saveCurrentProject() {
+    if (!currentProjectId) return;
+
+    var list = loadProjects();
+    var idx = -1;
+    for (var i = 0; i < list.length; i++) {
+      if (list[i].id === currentProjectId) {
+        idx = i;
+        break;
+      }
+    }
+
+    var project = {
+      id: currentProjectId,
+      title: (coverTitleInput.value || "").trim() || DEFAULT_COVER_TITLE,
+      palette: getSelectedValue("palette") || "sage",
+      pageSize: getSelectedValue("page-size") || "a4",
+      lineStyle: getSelectedValue("line-style") || "ruled",
+      text: textInput.value || "",
+      updatedAt: Date.now(),
+    };
+
+    if (idx >= 0) {
+      list[idx] = project;
+    } else {
+      list.push(project);
+    }
+    saveProjects(list);
+  }
+
+  function scheduleAutoSave() {
+    clearTimeout(autoSaveTimer);
+    autoSaveTimer = setTimeout(saveCurrentProject, 500);
+  }
+
+  function deleteProject(id) {
+    var list = loadProjects().filter(function (p) {
+      return p.id !== id;
+    });
+    saveProjects(list);
+  }
+
+  function renderProjectGrid() {
+    var list = loadProjects().sort(function (a, b) {
+      return b.updatedAt - a.updatedAt;
+    });
+
+    projectGridEl.innerHTML = "";
+
+    if (list.length === 0) {
+      projectGridEl.hidden = true;
+      emptyStateEl.hidden = false;
+      return;
+    }
+    projectGridEl.hidden = false;
+    emptyStateEl.hidden = true;
+
+    var fragment = document.createDocumentFragment();
+    list.forEach(function (project) {
+      var palette = PALETTES[project.palette] || PALETTES.sage;
+
+      var card = document.createElement("div");
+      card.className = "project-card";
+      card.setAttribute("role", "button");
+      card.setAttribute("tabindex", "0");
+
+      var swatch = document.createElement("div");
+      swatch.className = "project-card-swatch";
+      swatch.style.background = rgbToCss(palette.accent);
+      card.appendChild(swatch);
+
+      var deleteBtn = document.createElement("button");
+      deleteBtn.type = "button";
+      deleteBtn.className = "project-card-delete";
+      deleteBtn.setAttribute("aria-label", "프로젝트 삭제");
+      deleteBtn.textContent = "×";
+      card.appendChild(deleteBtn);
+
+      var body = document.createElement("div");
+      body.className = "project-card-body";
+
+      var title = document.createElement("p");
+      title.className = "project-card-title";
+      title.textContent = project.title || DEFAULT_COVER_TITLE;
+      body.appendChild(title);
+
+      var meta = document.createElement("p");
+      meta.className = "project-card-meta";
+      meta.textContent = "마지막 수정: " + formatRelativeTime(project.updatedAt);
+      body.appendChild(meta);
+
+      card.appendChild(body);
+
+      card.addEventListener("click", function () {
+        openProject(project.id);
+      });
+      card.addEventListener("keydown", function (e) {
+        if (e.key === "Enter" || e.key === " ") {
+          e.preventDefault();
+          openProject(project.id);
+        }
+      });
+      deleteBtn.addEventListener("click", function (e) {
+        e.stopPropagation();
+        if (window.confirm("이 프로젝트를 삭제할까요?")) {
+          deleteProject(project.id);
+          renderProjectGrid();
+        }
+      });
+
+      fragment.appendChild(card);
+    });
+    projectGridEl.appendChild(fragment);
+  }
+
+  function showHome() {
+    currentProjectId = null;
+    renderProjectGrid();
+    homeScreenEl.hidden = false;
+    appShellEl.hidden = true;
+  }
+
+  function showEditor() {
+    homeScreenEl.hidden = true;
+    appShellEl.hidden = false;
+    applyPaletteTheme(getSelectedPalette());
+    updatePreview();
+  }
+
+  function createNewProject() {
+    var project = {
+      id: generateProjectId(),
+      title: DEFAULT_COVER_TITLE,
+      palette: "sage",
+      pageSize: "a4",
+      lineStyle: "ruled",
+      text: "",
+      updatedAt: Date.now(),
+    };
+    var list = loadProjects();
+    list.push(project);
+    saveProjects(list);
+
+    currentProjectId = project.id;
+    applyProjectToEditor(project);
+    showEditor();
+  }
+
+  function openProject(id) {
+    var list = loadProjects();
+    var project = null;
+    for (var i = 0; i < list.length; i++) {
+      if (list[i].id === id) {
+        project = list[i];
+        break;
+      }
+    }
+    if (!project) return;
+
+    currentProjectId = project.id;
+    applyProjectToEditor(project);
+    showEditor();
+  }
+
+  newProjectBtn.addEventListener("click", createNewProject);
+  emptyNewProjectBtn.addEventListener("click", createNewProject);
+  backToHomeBtn.addEventListener("click", showHome);
+
   function updatePreview() {
     var pageSize = getSelectedValue("page-size") || "a4";
     var lineStyle = getSelectedValue("line-style") || "ruled";
@@ -386,13 +618,23 @@
     input.addEventListener("change", function () {
       applyPaletteTheme(getSelectedPalette());
       updatePreview();
+      scheduleAutoSave();
     });
   });
   document.querySelectorAll('input[name="page-size"], input[name="line-style"]').forEach(function (input) {
-    input.addEventListener("change", updatePreview);
+    input.addEventListener("change", function () {
+      updatePreview();
+      scheduleAutoSave();
+    });
   });
-  coverTitleInput.addEventListener("input", schedulePreviewUpdate);
-  textInput.addEventListener("input", schedulePreviewUpdate);
+  coverTitleInput.addEventListener("input", function () {
+    schedulePreviewUpdate();
+    scheduleAutoSave();
+  });
+  textInput.addEventListener("input", function () {
+    schedulePreviewUpdate();
+    scheduleAutoSave();
+  });
   window.addEventListener("resize", schedulePreviewUpdate);
 
   sidebarToggle.addEventListener("click", function () {
@@ -400,8 +642,7 @@
     sidebarToggle.setAttribute("aria-expanded", String(expanded));
   });
 
-  applyPaletteTheme(getSelectedPalette());
-  updatePreview();
+  showHome();
 
   makeBtn.addEventListener("click", function () {
     var text = textInput.value;

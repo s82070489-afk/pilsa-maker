@@ -8,10 +8,41 @@
 <link rel="stylesheet" href="style.css">
 </head>
 <body>
-<div class="app-shell">
+<div class="home-screen" id="home-screen">
+  <div class="home-shell">
+    <div class="home-header">
+      <div class="home-brand">
+        <div class="brand-badge" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"></path><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4Z"></path></svg></div>
+        <div class="brand-text">
+          <h1>필사메이커</h1>
+          <p class="subtitle">마음에 드는 문장을 옮겨 적고, 나만의 필사책으로 만들어보세요.</p>
+        </div>
+      </div>
+      <button type="button" class="primary-btn" id="new-project-btn">
+        <span class="btn-icon" aria-hidden="true">+</span>
+        <span>새 프로젝트 만들기</span>
+      </button>
+    </div>
+    <div class="home-body">
+      <div class="project-grid" id="project-grid"></div>
+      <div class="empty-state" id="empty-state" hidden>
+        <p>아직 만든 필사책이 없어요</p>
+        <button type="button" class="primary-btn" id="empty-new-project-btn">
+          <span class="btn-icon" aria-hidden="true">+</span>
+          <span>새 프로젝트 만들기</span>
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="app-shell" id="app-shell" hidden>
 
   <aside class="sidebar">
     <div class="sidebar-scroll">
+      <button type="button" class="back-to-home" id="back-to-home">
+        <span aria-hidden="true">&larr;</span> 내 프로젝트
+      </button>
       <div class="brand">
         <div class="brand-badge" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"></path><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4Z"></path></svg></div>
         <div class="brand-text">
