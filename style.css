@@ -1,22 +1,27 @@
 :root {
-  /* Design tokens for this round: a cool blue/gray "app" identity for the
-     UI chrome only. This is completely separate from the book palette
-     (sage/beige/rose/charcoal swatches), which keeps its own hex values
-     untouched and only ever reaches the canvas preview via inline styles
-     set from script.js -- never through these variables. */
-  --bg-app: #f5f6f8;
-  --bg-sidebar: #ffffff;
-  --bg-canvas: #eef1f5;
-  --card-bg: #ffffff;
-  --accent-fixed: #185fa5;
-  --accent-fixed-soft-bg: #e6f1fb;
-  --accent-fixed-soft: rgba(24, 95, 165, 0.16);
-  --accent-secondary: #0c447c;
-  --ink: #24292e;
-  --ink-label: #6b7280;
-  --hairline: #e2e5ea;
-  --radius-sm: 8px;
-  --radius-md: 12px;
+  /* Design tokens measured from reference/target-ui.png (mooney glass
+     dashboard): a diagonal lavender->pink->white gradient page background,
+     translucent frosted-glass panels, and a vivid indigo accent. This is
+     the "UI itself" identity only -- completely separate from the book
+     palette (sage/beige/rose/charcoal swatches), which keeps its own hex
+     values untouched and only ever reaches the canvas preview via inline
+     styles set from script.js, never through these variables. */
+  --bg-gradient: linear-gradient(135deg, #dadbef 0%, #f0e6ee 55%, #fafafc 100%);
+  --glass-bg: rgba(255, 255, 255, 0.45);
+  --glass-bg-soft: rgba(255, 255, 255, 0.22);
+  --card-bg: rgba(255, 255, 255, 0.62);
+  --accent-fixed: #5956e9;
+  --accent-fixed-soft-bg: #e9e4ef;
+  --accent-fixed-soft: rgba(89, 86, 233, 0.18);
+  --accent-secondary: #4640c4;
+  --ink: #010226;
+  --ink-label: #5f5a89;
+  --ink-muted: #9899af;
+  --hairline: rgba(93, 90, 137, 0.14);
+  --hairline-glass: rgba(255, 255, 255, 0.5);
+  --radius-sm: 10px;
+  --radius-md: 14px;
+  --radius-lg: 20px;
   --font-serif: "Noto Serif KR", "Nanum Myeongjo", "AppleMyungjo", Batang, serif;
   --font-sans: "Pretendard", "Apple SD Gothic Neo", "Malgun Gothic", sans-serif;
 
@@ -40,17 +45,25 @@ body {
 body {
   margin: 0;
   padding: 0;
-  background: var(--bg-app);
+  background: var(--bg-gradient);
+  background-attachment: fixed;
   color: var(--ink);
   font-family: var(--font-sans);
 }
 
-/* ---------- shell layout ---------- */
+/* ---------- shell layout: a floating glass card on the gradient ---------- */
 
 .app-shell {
   display: flex;
   align-items: stretch;
-  height: 100vh;
+  height: calc(100vh - 48px);
+  margin: 24px;
+  border-radius: 32px;
+  overflow: hidden;
+  background: var(--glass-bg);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  box-shadow: 0 30px 60px rgba(43, 38, 90, 0.18);
 }
 
 .sidebar {
@@ -58,8 +71,8 @@ body {
   flex-direction: column;
   flex: 0 0 264px;
   width: 264px;
-  background: var(--bg-sidebar);
-  border-right: 1px solid var(--hairline);
+  background: var(--glass-bg-soft);
+  border-right: 1px solid var(--hairline-glass);
 }
 
 .sidebar-scroll {
@@ -71,8 +84,7 @@ body {
 .sidebar-footer {
   flex: 0 0 auto;
   padding: 16px 20px 24px;
-  border-top: 1px solid var(--hairline);
-  background: var(--bg-sidebar);
+  border-top: 1px solid var(--hairline-glass);
 }
 
 .canvas-area {
@@ -80,7 +92,6 @@ body {
   display: flex;
   flex-direction: column;
   overflow: hidden;
-  background: var(--bg-canvas);
 }
 
 /* Thin header bar: icon badge + app title on the left, live-update status
@@ -91,8 +102,7 @@ body {
   align-items: center;
   justify-content: space-between;
   padding: 16px 24px;
-  background: var(--card-bg);
-  border-bottom: 1px solid var(--hairline);
+  border-bottom: 1px solid var(--hairline-glass);
 }
 
 .canvas-header-brand {
@@ -159,9 +169,7 @@ body {
   gap: 6px;
   padding: 14px 16px;
   background: var(--card-bg);
-  border: 1px solid var(--hairline);
-  border-radius: var(--radius-md);
-  box-shadow: 0 1px 2px rgba(16, 24, 40, 0.04);
+  border-radius: var(--radius-lg);
 }
 
 .stat-label {
@@ -216,7 +224,7 @@ body {
   font-family: var(--font-sans);
   font-weight: 400;
   font-size: 13px;
-  color: var(--ink-label);
+  color: var(--ink-muted);
   margin: 0;
   line-height: 1.5;
 }
@@ -233,7 +241,7 @@ body {
   font-family: inherit;
   color: var(--ink);
   background: var(--card-bg);
-  border: 1px solid var(--hairline);
+  border: none;
   border-radius: var(--radius-md);
   cursor: pointer;
 }
@@ -289,15 +297,14 @@ body {
   font-size: 15px;
   font-weight: 400;
   color: var(--ink);
-  border: 1px solid var(--hairline);
+  border: none;
   border-radius: var(--radius-sm);
   background: var(--card-bg);
-  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+  transition: box-shadow 0.15s ease;
 }
 
 .title-input:focus {
   outline: none;
-  border-color: var(--accent-fixed);
   box-shadow: 0 0 0 3px var(--accent-fixed-soft);
 }
 
@@ -344,8 +351,8 @@ body {
 }
 
 .palette-option:has(input:checked) .swatch {
-  box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.1), 0 0 0 3px var(--bg-sidebar), 0 0 0 5px rgba(24, 95, 165, 0.5),
-    0 0 12px 4px rgba(24, 95, 165, 0.25);
+  box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.1), 0 0 0 3px var(--glass-bg), 0 0 0 5px rgba(89, 86, 233, 0.5),
+    0 0 12px 4px rgba(89, 86, 233, 0.25);
 }
 
 .palette-option:has(input:focus-visible) {
@@ -388,8 +395,7 @@ body {
   display: flex;
   gap: 4px;
   padding: 4px;
-  background: var(--bg-canvas);
-  border: 1px solid var(--hairline);
+  background: rgba(93, 90, 137, 0.08);
   border-radius: 9999px;
 }
 
@@ -421,9 +427,9 @@ body {
 
 .toggle-pill:has(input:checked) {
   background: var(--accent-fixed);
-  color: var(--card-bg);
+  color: #ffffff;
   font-weight: 700;
-  box-shadow: 0 2px 6px rgba(24, 95, 165, 0.3);
+  box-shadow: 0 2px 6px rgba(89, 86, 233, 0.35);
 }
 
 .toggle-pill:has(input:focus-visible) {
@@ -440,15 +446,14 @@ textarea {
   font-family: var(--font-sans);
   color: var(--ink);
   background: var(--card-bg);
-  border: 1px solid var(--hairline);
+  border: none;
   border-radius: var(--radius-sm);
   resize: vertical;
-  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+  transition: box-shadow 0.15s ease;
 }
 
 textarea:focus {
   outline: none;
-  border-color: var(--accent-fixed);
   box-shadow: 0 0 0 3px var(--accent-fixed-soft);
 }
 
@@ -469,7 +474,7 @@ button#make-pdf-btn {
   border: none;
   border-radius: var(--radius-md);
   cursor: pointer;
-  box-shadow: 0 2px 6px rgba(24, 95, 165, 0.35);
+  box-shadow: 0 8px 20px rgba(89, 86, 233, 0.35);
   transition: filter 0.15s ease, transform 0.15s ease, box-shadow 0.15s ease;
 }
 
@@ -479,19 +484,19 @@ button#make-pdf-btn .btn-icon {
 }
 
 button#make-pdf-btn:hover {
-  filter: brightness(1.1);
+  filter: brightness(1.08);
   transform: translateY(-1px);
-  box-shadow: 0 6px 14px rgba(24, 95, 165, 0.4);
+  box-shadow: 0 10px 24px rgba(89, 86, 233, 0.4);
 }
 
 button#make-pdf-btn:active {
   transform: translateY(0);
-  filter: brightness(0.95);
-  box-shadow: 0 1px 3px rgba(24, 95, 165, 0.3);
+  filter: brightness(0.96);
+  box-shadow: 0 4px 10px rgba(89, 86, 233, 0.3);
 }
 
 button#make-pdf-btn:disabled {
-  background: #9ca3af;
+  background: #a9a7c9;
   cursor: not-allowed;
   filter: none;
   transform: none;
@@ -511,7 +516,7 @@ button#make-pdf-btn:disabled {
   color: #b91c1c;
 }
 
-/* ---------- canvas / page preview: paper-stack effect ---------- */
+/* ---------- canvas / page preview ---------- */
 
 .page-card {
   width: 100%;
@@ -532,7 +537,7 @@ button#make-pdf-btn:disabled {
 .figcaption-muted {
   font-weight: 400;
   letter-spacing: 0;
-  color: #9aa2af;
+  color: var(--ink-muted);
   margin-left: 2px;
 }
 
@@ -542,40 +547,13 @@ button#make-pdf-btn:disabled {
   max-width: 480px;
 }
 
-/* Card radius/shadow measured from the reference's stat/panel cards: ~14px
-   radius, and a soft two-layer shadow (tight low-opacity contact shadow +
-   a much larger, faint ambient one) rather than one heavy shadow. Stack
-   layer colors are neutral grays (not the old warm paper cream) to match
-   this round's cool token set -- color values only, same structure. */
-.page-stack::before,
-.page-stack::after {
-  content: "";
-  position: absolute;
-  inset: 0;
-  border-radius: 14px;
-  z-index: 0;
-}
-
-.page-stack::before {
-  background: #e9ebef;
-  box-shadow: 0 10px 18px rgba(16, 24, 40, 0.08);
-  transform: rotate(-1.1deg) translate(4px, 5px);
-}
-
-.page-stack::after {
-  background: #dde1e7;
-  box-shadow: 0 6px 12px rgba(16, 24, 40, 0.06);
-  transform: rotate(0.8deg) translate(-4px, 7px);
-  z-index: -1;
-}
-
 .page-sheet {
   position: relative;
   z-index: 2;
   width: 100%;
-  background: var(--card-bg);
-  border-radius: 14px;
-  box-shadow: 0 1px 2px rgba(16, 24, 40, 0.06), 0 20px 40px rgba(16, 24, 40, 0.12);
+  background: #ffffff;
+  border-radius: var(--radius-lg);
+  box-shadow: 0 20px 45px rgba(43, 38, 90, 0.16);
   overflow: hidden;
 }
 
@@ -641,14 +619,16 @@ button#make-pdf-btn:disabled {
   .app-shell {
     flex-direction: column;
     height: auto;
-    min-height: 100vh;
+    min-height: calc(100vh - 24px);
+    margin: 12px;
+    border-radius: 24px;
   }
 
   .sidebar {
     flex: 0 0 auto;
     width: 100%;
     border-right: none;
-    border-bottom: 1px solid var(--hairline);
+    border-bottom: 1px solid var(--hairline-glass);
   }
 
   .sidebar-scroll {
