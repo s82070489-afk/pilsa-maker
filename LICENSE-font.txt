@@ -1,8 +1,11 @@
-This file covers the Pretendard font embedded (base64-encoded, for use with
-jsPDF) in assets/fonts/korean-font.js.
+This file covers the Pretendard font embedded (base64-encoded) in:
+- assets/fonts/korean-font.js -- Regular TTF, for use with jsPDF (PDF output)
+- assets/fonts/ui-fonts.css -- Regular + Bold WOFF2, for the on-screen UI only
 
 Source: the "pretendard" npm package, version 1.3.9
-(dist/public/static/alternative/Pretendard-Regular.ttf).
+(dist/public/static/alternative/Pretendard-Regular.ttf for the PDF-facing
+TTF; dist/web/static/woff2/Pretendard-{Regular,Bold}.woff2 for the UI-facing
+WOFF2 -- full weights, not glyph subsets).
 https://github.com/orioncactus/pretendard
 
 -----------------------------------------------------------
